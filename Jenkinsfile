@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     stages {
+        stage('git checkout') {
+            steps {
+                checkout scm
+            }
+        }
         stage('Terraform Init') {
             steps {
                 sh 'terraform init'
