@@ -1,7 +1,7 @@
 # Configurer le provider Azure
 provider "azurerm" {
   features {}
-    subscription_id = "73d2f2cc-d54a-45f4-99b2-cc8d634a82a3"
+  subscription_id = "73d2f2cc-d54a-45f4-99b2-cc8d634a82a3"
 }
 
 # Créer un groupe de ressources
@@ -85,34 +85,18 @@ resource "azurerm_network_interface_security_group_association" "devops_sg_assoc
   network_security_group_id = azurerm_network_security_group.devops_nsg.id
 }
 
-# Générer une paire de clés SSH pour la VM si elle n'existe pas déjà
-resource "tls_private_key" "devops_ssh" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-# Sauvegarder la clé privée dans un fichier
-resource "local_file" "private_key" {
-  content         = tls_private_key.devops_ssh.private_key_pem
-  filename        = "devops_key.pem"
-  file_permission = "0600"
-}
-
-# Créer une machine virtuelle Linux
+# Créer une machine virtuelle Linux avec mot de passe
 resource "azurerm_linux_virtual_machine" "devops_vm" {
   name                = "devops-machine"
   resource_group_name = azurerm_resource_group.devops_rg.name
   location            = azurerm_resource_group.devops_rg.location
   size                = "Standard_B1s"
-  admin_username      = "adminuser"
+  admin_username      = var.username
+  admin_password      = var.password
+  disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.devops_nic.id,
   ]
-
-  admin_ssh_key {
-    username   = "adminuser"
-    public_key = tls_private_key.devops_ssh.public_key_openssh
-  }
 
   os_disk {
     caching              = "ReadWrite"
@@ -135,4 +119,10 @@ output "public_ip_address" {
 # Output le nom d'utilisateur de la VM
 output "vm_username" {
   value = azurerm_linux_virtual_machine.devops_vm.admin_username
+}
+
+# Output le mot de passe de la VM
+output "vm_password" {
+  value = azurerm_linux_virtual_machine.devops_vm.admin_password
+  sensitive = true
 }
