@@ -64,6 +64,7 @@ pipeline {
         }
         stage('Deploy with Ansible') {
             steps {
+                sh 'bash ansible/replace.sh'
                 sh 'ansible-playbook -i ansible/inventory.ini   ansible/playbook.yml'
             }
         }
