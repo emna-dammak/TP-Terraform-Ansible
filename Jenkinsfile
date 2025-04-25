@@ -41,7 +41,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                script {
+                dir('/terraform') {
                     sh 'terraform init'
                 }
             }
@@ -49,7 +49,7 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                script {
+                dir('/terraform') {
                     sh 'terraform plan'
                 }
             }
@@ -57,7 +57,7 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                script {
+                dir('/terraform') {
                     sh 'terraform apply -auto-approve'
                 }
             }
