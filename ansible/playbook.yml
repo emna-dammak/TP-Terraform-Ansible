@@ -1,0 +1,66 @@
+---
+- name: Déployer Docker et une application conteneurisée
+  hosts: web
+  become: true
+  tasks:
+    - name: Mettre à jour le cache apt
+      apt:
+        update_cache: yes
+      tags: docker
+
+    - name: Installer les dépendances
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+        state: present
+      tags: docker
+
+    - name: Ajouter la clé GPG Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      tags: docker
+
+    - name: Ajouter le dépôt Docker
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+      tags: docker
+
+    - name: Installer Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+      tags: docker
+
+    - name: Assurer que le service Docker est démarré
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      tags: docker
+
+    - name: Créer un répertoire pour l'application
+      file:
+        path: /app
+        state: directory
+        mode: '0755'
+      tags: application
+    # deployer un conteneur docker a partit de l'image emnadammak/mon-app:latest
+    - name: Déployer l'application conteneurisée
+      docker_container:
+        name: mon_app
+        image: emnadammak/mon-app:latest
+        state: started
+        restart_policy: always
+        published_ports:
+          - "80:80"
+      tags: application
