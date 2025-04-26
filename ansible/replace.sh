@@ -2,10 +2,9 @@
 # Script pour mettre à jour l'inventaire Ansible avec l'IP et les identifiants de la VM Azure
 
 # Récupérer l'IP publique et le nom d'utilisateur depuis les sorties Terraform
-pwd
-IP_ADDRESS=$(terraform output -state=../terraform/terraform.tfstate -raw public_ip_address)
-USERNAME=$(terraform output -state=../terraform/terraform.tfstate -raw vm_username)
-PASSWORD=$(terraform output -state=../terraform/terraform.tfstate -raw vm_password)
+IP_ADDRESS=$(terraform output -state=terraform/terraform.tfstate -raw public_ip_address)
+USERNAME=$(terraform output -state=terraform/terraform.tfstate -raw vm_username)
+PASSWORD=$(terraform output -state=terraform/terraform.tfstate -raw vm_password)
 
 # Créer le fichier d'inventaire
 cat > ansible/inventory.ini << EOF
